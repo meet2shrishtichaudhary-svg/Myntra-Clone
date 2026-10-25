@@ -88,10 +88,13 @@ try {
                 item.quantity > 0
             )
             .map(item => ({
-                name: item.name,
-                price: products[item.name].price,
-                quantity: item.quantity
-            }));
+             name: item.name,
+             price: products[item.name].price,
+             quantity: item.quantity,
+             size: item.size || "",
+             color: item.color || ""
+    }));
+
     }
 } catch {
     cart = [];
@@ -148,6 +151,15 @@ function renderBag() {
         const price = document.createElement("p");
         price.textContent = money(product.price);
 
+        const options = document.createElement("p");
+        options.className = "bag-item-options";
+
+        options.textContent =
+        (item.size ? "Size: " + item.size : "") +
+        (item.size && item.color ? " | " : "") +
+        (item.color ? "Color: " + item.color : "");
+
+
         const quantity = document.createElement("div");
         quantity.className = "quantity-control";
 
@@ -189,7 +201,13 @@ function renderBag() {
             renderBag();
         });
 
-        details.append(name, price, quantity, remove);
+        details.append(name, price);
+
+        if (item.size || item.color) {
+         details.appendChild(options);
+    }
+
+details.append(quantity, remove);
         card.append(image, details);
         bagItems.appendChild(card);
     });

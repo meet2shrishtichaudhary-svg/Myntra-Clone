@@ -155,3 +155,91 @@ document.querySelectorAll(".product-card").forEach(card => {
 });
 
 updateCartCount();
+
+
+/* Category Filters and Price Sorting */
+
+const filterButtons = document.querySelectorAll(".filter-btn");
+const priceSort = document.getElementById("priceSort");
+const productGrid = document.querySelector(".product-grid");
+
+if (productGrid && filterButtons.length && priceSort) {
+    const productCards = Array.from(
+        productGrid.querySelectorAll(".product-card")
+    );
+
+    let selectedCategory = "all";
+
+    function getCategory(card) {
+        const categoryText = card.querySelector(
+            ".product-category"
+        )?.textContent.toLowerCase() || "";
+
+        if (categoryText.includes("beauty")) {
+            return "beauty";
+        }
+
+        if (categoryText.includes("kids")) {
+            return "kids";
+        }
+
+        if (
+            categoryText.includes("footwear") ||
+            categoryText.includes("shoes")
+        ) {
+            return "shoes";
+        }
+
+        if (categoryText.includes("accessories")) {
+            return "accessories";
+        }
+
+        return "clothing";
+    }
+
+    function getPrice(card) {
+        const priceText = card.querySelector(".price")?.textContent || "";
+        return Number(priceText.replace(/[^\d.]/g, "")) || 0;
+    }
+
+    function filterAndSortProducts() {
+        productCards.forEach(card => {
+            const category = getCategory(card);
+
+            card.hidden = !(
+                selectedCategory === "all" ||
+                category === selectedCategory
+            );
+        });
+
+        const visibleCards = productCards.filter(card => !card.hidden);
+
+        if (priceSort.value === "low-high") {
+            visibleCards.sort((a, b) => getPrice(a) - getPrice(b));
+        } else if (priceSort.value === "high-low") {
+            visibleCards.sort((a, b) => getPrice(b) - getPrice(a));
+        } else {
+            visibleCards.sort(
+                (a, b) => productCards.indexOf(a) - productCards.indexOf(b)
+            );
+        }
+
+        visibleCards.forEach(card => productGrid.appendChild(card));
+    }
+
+    filterButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            selectedCategory = button.dataset.category.toLowerCase();
+
+            filterButtons.forEach(item => {
+                item.classList.toggle("active", item === button);
+            });
+
+            filterAndSortProducts();
+        });
+    });
+
+    priceSort.addEventListener("change", filterAndSortProducts);
+
+    filterAndSortProducts();
+}
